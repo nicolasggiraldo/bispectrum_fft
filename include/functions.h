@@ -1,5 +1,5 @@
 int read_parameters(char param_file_name[]);
-//int readBinaryFile();
+int readBinaryFile();
 //*
 double sinc(double x);
 double W_NGP(double k);

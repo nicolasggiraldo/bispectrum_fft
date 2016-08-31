@@ -16,8 +16,8 @@
 /* Global variales */
 struct globalVariables{
   int      NGRID;          // Number of cell in each axis
-  long int NGRID2;         // Axis cell number to the square NGRID^2
-  long int NGRID3;         // Total number of cells (NGRID3 = NGRID^3)
+  long     NGRID2;         // Axis cell number to the square NGRID^2
+  long     NGRID3;         // Total number of cells (NGRID3 = NGRID^3)
   int      GADGET_VERSION; // GADGET version of the snapshot
   double   L;              // Lenght of the simulation in Mpc.
   double   SIM_VOL;        // Volume of the simulation

@@ -38,7 +38,7 @@ int readBinaryFile()
   size_t err;
   
   printf("\n-----------------------------------------------\n");
-  printf("Reading file:   %s\n", GV.FILE_NAME);
+  printf("Reading file: %s\n", GV.FILE_NAME);
   
   fdata = fopen(GV.FILE_NAME,"rb");
   if(fdata == NULL)
@@ -67,9 +67,12 @@ int readBinaryFile()
   err = fread(&(GV.SCHEME[2]),    sizeof(char),     1, fdata);
   GV.SCHEME[3] = '\0';
 
-  GV.NGRID2     = POW2(GV.NGRID);
-  GV.NGRID3     = POW3(GV.NGRID);
-  GV.SIM_VOL    = POW3(GV.L);
+  GV.NGRID2     = (1L*GV.NGRID)*(1L*GV.NGRID);
+  GV.NGRID3     = (1L*GV.NGRID)*(1L*GV.NGRID)*(1L*GV.NGRID);
+  printf("NGRID2=%d\n",GV.NGRID);
+  printf("NGRID2=%ld\n",GV.NGRID2);
+  printf("NGRID3=%ld\n",GV.NGRID3);
+  GV.SIM_VOL    = GV.L*GV.L*GV.L;
   GV.KF         = (2.0*M_PI) / GV.L;
   GV.DELTA_K    = GV.S_KF * GV.KF;
   GV.SHOT_NOISE = GV.VOL_CELL / GV.NP_TOT;
@@ -135,11 +138,10 @@ int readBinaryFile()
   for(id_cell=0; id_cell<GV.NGRID3; id_cell++)
     {
       err = fread(&density_Contrast, sizeof(double), 1, fdata);
-      printf("%lf\n", density_Contrast);
       denConX[id_cell][0] = density_Contrast;
       denConX[id_cell][1] = 0.0;
     }//for id_cell
-  
+  fclose(fdata);
   
   
   ////////////////////////////////////
@@ -148,14 +150,11 @@ int readBinaryFile()
   fftw_execute(forwardPlan);
   printf("\n-----------------------------------------------\n");
   printf("Fourier Transform succes.\n");
-  fftw_free(denConX);
   fftw_destroy_plan(forwardPlan);
-    
+  fftw_free(denConX);
   
   
   if(err){};
-  
-  fclose(fdata);
   
   return 0;
 }

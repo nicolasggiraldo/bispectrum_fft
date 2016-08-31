@@ -30,31 +30,28 @@ double *Im_D20=NULL;
 double *Kmag2_D20=NULL;
 FILE *fin_D20=NULL;
 
-typedef double realType;
+
 
 int main(int argc, char *argv[])
 {
   int i,j,k;
   long longi;
-  long double Bklongdouble, Ntrilongdouble;
 
   double (*W_k_Re)(double)=NULL; // Addres to the window function
   double (*W_k_Im)(double)=NULL; // Addres to the window function
   double (*W2_k)(double)  =NULL; // Addres to the window function
-
-  double step=0.5; // Delta_K step for binning
   
   FILE *fout=NULL; // File handler to output
   
   // FFTW complex variables
   fftw_complex *complex=NULL;
   fftw_complex *unity  =NULL;
-  realType *real1=NULL;
-  realType *real2=NULL;
-  realType *real3=NULL;
-  realType *I1   =NULL;
-  realType *I2   =NULL;
-  realType *I3   =NULL;
+  double *real1  =NULL;
+  double *real2  =NULL;
+  double *real3  =NULL;
+  double *I1     =NULL;
+  double *I2     =NULL;
+  double *I3     =NULL;
   fftw_plan realPlan;
   fftw_plan NtriPlan;
   int n[3]; // Number of grids in each axis for FFT estimation
@@ -62,13 +59,6 @@ int main(int argc, char *argv[])
   int *indexpos=NULL; // Index values array according to FFTW k-position convention
   double kMag; // Magnitude of the wavevector
 
-  double denConCor[2];
-  double WRe, WIm, WMag2;
-  double D20_complexki0,D20_complexkj0,D20_complexkk0;
-  double D20_complexki1,D20_complexkj1,D20_complexkk1;
-  
-  
-  
   //////////////////////////////
   //* READING PARAMETER FILE *//
   //////////////////////////////
@@ -238,24 +228,25 @@ int main(int argc, char *argv[])
   // Memory allocation
   complex = fftw_malloc(sizeof(fftw_complex)*GV.NGRID3);
   unity   = fftw_malloc(sizeof(fftw_complex)*GV.NGRID3);
-  real1   = (realType *) calloc( GV.NGRID3, sizeof(realType));
-  real2   = (realType *) calloc( GV.NGRID3, sizeof(realType));
-  real3   = (realType *) calloc( GV.NGRID3, sizeof(realType));
-  I1      = (realType *) calloc( GV.NGRID3, sizeof(realType));
-  I2      = (realType *) calloc( GV.NGRID3, sizeof(realType));
-  I3      = (realType *) calloc( GV.NGRID3, sizeof(realType));
+  real1   = (double *) calloc( GV.NGRID3, sizeof(double));
+  real2   = (double *) calloc( GV.NGRID3, sizeof(double));
+  real3   = (double *) calloc( GV.NGRID3, sizeof(double));
+  I1      = (double *) calloc( GV.NGRID3, sizeof(double));
+  I2      = (double *) calloc( GV.NGRID3, sizeof(double));
+  I3      = (double *) calloc( GV.NGRID3, sizeof(double));
 
   n[X] = n[Y] = n[Z] = GV.NGRID;
-
-  /* Generando el plan  */
-  realPlan = fftw_plan_dft(3, n, complex, complex, FFTW_BACKWARD, FFTW_MEASURE);
-  NtriPlan = fftw_plan_dft(3, n, unity,   unity,   FFTW_BACKWARD, FFTW_MEASURE);
   
   
   
   /////////////
   // PARA k1 //
   /////////////
+  
+  /* Generando el plan  */
+  realPlan = fftw_plan_dft_c2r(3, n, complex, real1, FFTW_ESTIMATE);
+  NtriPlan = fftw_plan_dft_c2r(3, n, unity,   I1,    FFTW_ESTIMATE);
+  
   GV.Pk1 = 0.0;
   GV.Nk1 = 0;
   for(i=0; i<GV.NGRID; i++)
@@ -272,51 +263,13 @@ int main(int argc, char *argv[])
 	      if( (GV.K1-GV.DELTA_K*0.5 < kMag) && (kMag < GV.K1+GV.DELTA_K*0.5) )
 		{
 		  
-		  if( strcmp(GV.SCHEME, "D20") == 0 ) // D20
-		    { 
-		      
-		      D20_complexki0 = W_k_Re(kpos[i]);
-		      D20_complexkj0 = W_k_Re(kpos[j]);
-		      D20_complexkk0 = W_k_Re(kpos[k]);
-		      
-		      D20_complexki1 = W_k_Im(kpos[i]);
-		      D20_complexkj1 = W_k_Im(kpos[j]);
-		      D20_complexkk1 = W_k_Im(kpos[k]);
-		      
-		      WRe = ( +D20_complexki0 * D20_complexkj0 * D20_complexkk0
-			      -D20_complexki0 * D20_complexkj1 * D20_complexkk1
-			      -D20_complexki1 * D20_complexkj0 * D20_complexkk1
-			      -D20_complexki1 * D20_complexkj1 * D20_complexkk0);
-		      
-		      WIm = ( +D20_complexki0 * D20_complexkj0 * D20_complexkk1
-			      +D20_complexki0 * D20_complexkj1 * D20_complexkk0
-			      +D20_complexki1 * D20_complexkj0 * D20_complexkk0
-			      -D20_complexki1 * D20_complexkj1 * D20_complexkk1);
-		      
-		      WMag2 = (WRe*WRe) + (WIm*WIm);
-		      
-		      denConCor[0] = (denConK[longi][0]*WRe + denConK[longi][1]*WIm)/WMag2;
-		      denConCor[1] = (denConK[longi][1]*WRe - denConK[longi][0]*WIm)/WMag2;
-		      
-		    }
-		  else
-		    { // NGP, CIC, TSC
-		      
-		      denConCor[0] = denConK[longi][0]/( W_k_Re(kpos[i]) * W_k_Re(kpos[j]) * W_k_Re(kpos[j]) );
-		      denConCor[1] = denConK[longi][1]/( W_k_Re(kpos[i]) * W_k_Re(kpos[j]) * W_k_Re(kpos[j]) );
-		      
-		    }
-
-		  complex[longi][0] = denConCor[0];
-		  complex[longi][1] = denConCor[1];
-
-		  //complex[longi][0] = denConK[longi][0];
-		  //complex[longi][1] = denConK[longi][1];
+		  complex[longi][0] = denConK[longi][0];
+		  complex[longi][1] = denConK[longi][1];
 
 		  unity[longi][0]   = 1.0;
 		  unity[longi][1]   = 0.0;
 
-		  GV.Pk1 += COMPLEXMAG(denConK,longi)/( W2_k(kpos[i])*W2_k(kpos[j])*W2_k(kpos[k]) );
+		  GV.Pk1 += COMPLEXMAG(denConK, longi)/( W2_k(kpos[i]) * W2_k(kpos[j]) * W2_k(kpos[k]) );
 		  GV.Nk1++;
 		  
 		}
@@ -339,12 +292,9 @@ int main(int argc, char *argv[])
   fftw_execute(realPlan);
   fftw_execute(NtriPlan);
 
-  // Realizando copia del resultado...
-  for(longi=0; longi<GV.NGRID3; longi++)
-    {
-      real1[longi] = complex[longi][0];
-      I1[longi]    = unity[longi][0];
-    }
+  // Destruyendo el plan
+  fftw_destroy_plan(realPlan);
+  fftw_destroy_plan(NtriPlan);
 
   // Stimating power spectrum in k1
   GV.Pk1 /= (1.0*GV.Nk1);
@@ -354,10 +304,14 @@ int main(int argc, char *argv[])
   GV.Pk1_Error = (GV.Pk1*(GV.DELTA_K/GV.K1))/sqrt(2.0*M_PI);
   
   
-  
   /////////////
   // PARA k2 //
   /////////////
+
+  /* Generando el plan  */
+  realPlan = fftw_plan_dft_c2r(3, n, complex, real2, FFTW_ESTIMATE);
+  NtriPlan = fftw_plan_dft_c2r(3, n, unity,   I2,    FFTW_ESTIMATE);
+  
   /* Generando el plan  */
   GV.Pk2 = 0.0;
   GV.Nk2 = 0;
@@ -374,47 +328,9 @@ int main(int argc, char *argv[])
 	      
 	      if( (GV.K2-GV.DELTA_K*0.5 < kMag) && (kMag < GV.K2+GV.DELTA_K*0.5) )
 		{
-
-		  if( strcmp(GV.SCHEME, "D20") == 0 ) // D20
-		    { 
-		      
-		      D20_complexki0 = W_k_Re(kpos[i]);
-		      D20_complexkj0 = W_k_Re(kpos[j]);
-		      D20_complexkk0 = W_k_Re(kpos[k]);
-		      
-		      D20_complexki1 = W_k_Im(kpos[i]);
-		      D20_complexkj1 = W_k_Im(kpos[j]);
-		      D20_complexkk1 = W_k_Im(kpos[k]);
-		      
-		      WRe = ( +D20_complexki0 * D20_complexkj0 * D20_complexkk0
-			      -D20_complexki0 * D20_complexkj1 * D20_complexkk1
-			      -D20_complexki1 * D20_complexkj0 * D20_complexkk1
-			      -D20_complexki1 * D20_complexkj1 * D20_complexkk0);
-		      
-		      WIm = ( +D20_complexki0 * D20_complexkj0 * D20_complexkk1
-			      +D20_complexki0 * D20_complexkj1 * D20_complexkk0
-			      +D20_complexki1 * D20_complexkj0 * D20_complexkk0
-			      -D20_complexki1 * D20_complexkj1 * D20_complexkk1);
-		      
-		      WMag2 = (WRe*WRe) + (WIm*WIm);
-		      
-		      denConCor[0] = (denConK[longi][0]*WRe + denConK[longi][1]*WIm)/WMag2;
-		      denConCor[1] = (denConK[longi][1]*WRe - denConK[longi][0]*WIm)/WMag2;
-		      
-		    }
-		  else
-		    { // NGP, CIC, TSC
-		      
-		      denConCor[0] = denConK[longi][0]/( W_k_Re(kpos[i]) * W_k_Re(kpos[j]) * W_k_Re(kpos[j]) );
-		      denConCor[1] = denConK[longi][1]/( W_k_Re(kpos[i]) * W_k_Re(kpos[j]) * W_k_Re(kpos[j]) );
-		      
-		    }
-
-		  complex[longi][0] = denConCor[0];
-		  complex[longi][1] = denConCor[1];
 		  
-		  //complex[longi][0] = denConK[longi][0];
-		  //complex[longi][1] = denConK[longi][1];
+		  complex[longi][0] = denConK[longi][0];
+		  complex[longi][1] = denConK[longi][1];
 
 		  unity[longi][0]   = 1.0;
 		  unity[longi][1]   = 0.0;
@@ -431,7 +347,7 @@ int main(int argc, char *argv[])
 		  
 		  unity[longi][0]   = 0.0;
 		  unity[longi][1]   = 0.0;
-		  
+
 		}
 	    }// for k
 	}// for j
@@ -441,15 +357,12 @@ int main(int argc, char *argv[])
   // De aqui obtengo real2
   fftw_execute(realPlan);
   fftw_execute(NtriPlan);
-  
-  // Realizando copia del resultado...
-  for(longi=0; longi<GV.NGRID3; longi++)
-    {
-      real2[longi] = complex[longi][0];
-      I2[longi]    = unity[longi][0];
-    }
-  
-  // Stimating power spectrum in k2
+
+  // Destruyendo el plan
+  fftw_destroy_plan(realPlan);
+  fftw_destroy_plan(NtriPlan);
+
+  // Stimating power spectrum in k1
   GV.Pk2 /= (1.0*GV.Nk2);
   GV.Pk2 *= (GV.SIM_VOL / (1.0 * GV.NGRID3));
   GV.Pk2 *= (       1.0 / (1.0 * GV.NGRID3));
@@ -461,11 +374,16 @@ int main(int argc, char *argv[])
   /////////////
   // PARA k3 //
   /////////////
+
+  /* Generando el plan  */
+  realPlan = fftw_plan_dft_c2r(3, n, complex, real3, FFTW_MEASURE);
+  NtriPlan = fftw_plan_dft_c2r(3, n, unity,   I3,    FFTW_MEASURE);
+  
   /* Saving data in the outfile */
   printf("Bispectrum calculation\n");
   printf("\n-----------------------------------------------\n");
   printf("Saving data in %s\n", GV.OUTPUT);
-  
+
   fout = fopen(GV.OUTPUT, "w");
   if(fout == NULL){
     printf("\n***********************************");
@@ -495,7 +413,7 @@ int main(int argc, char *argv[])
   fprintf(fout,"# OMEGA_L0       = %lf\n", GV.OMEGA_L0);
   fprintf(fout,"# ZRS            = %lf\n", GV.ZRS);
   fprintf(fout,"# HUBBLEPARAM    = %lf\n", GV.HUBBLEPARAM);
-  //fprintf(fout,"\n");
+  fprintf(fout,"\n");
   
   fprintf(fout,"#%19s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s\n",
 	  "k1", "k2", "k3", "P(k1)", "P(k2)", "P(k3)", "B(k1,k2,k3)", "Q(k1,k2,k3)",
@@ -505,7 +423,7 @@ int main(int argc, char *argv[])
   GV.K3 = GV.DELTA_K*0.5;
   while(GV.K3 <= GV.KN)
     {
-      printf("\nk3 = %12.6lf ", GV.K3);
+      printf("k3 = %g\n", GV.K3);
       
       GV.Pk3 = 0.0;
       GV.Nk3 = 0;
@@ -517,52 +435,14 @@ int main(int argc, char *argv[])
 		{
 		  
 		  kMag = VECTORMAG(kpos[i],kpos[j],kpos[k]);
-		  
+
 		  longi = INDEX(i,j,k);
 		  
 		  if( (GV.K3-GV.DELTA_K*0.5 < kMag) && (kMag < GV.K3+GV.DELTA_K*0.5) )
 		    {
-
-		      if( strcmp(GV.SCHEME, "D20") == 0 ) // D20
-			{ 
-			  
-			  D20_complexki0 = W_k_Re(kpos[i]);
-			  D20_complexkj0 = W_k_Re(kpos[j]);
-			  D20_complexkk0 = W_k_Re(kpos[k]);
-			  
-			  D20_complexki1 = W_k_Im(kpos[i]);
-			  D20_complexkj1 = W_k_Im(kpos[j]);
-			  D20_complexkk1 = W_k_Im(kpos[k]);
-			  
-			  WRe = ( +D20_complexki0 * D20_complexkj0 * D20_complexkk0
-				  -D20_complexki0 * D20_complexkj1 * D20_complexkk1
-				  -D20_complexki1 * D20_complexkj0 * D20_complexkk1
-				  -D20_complexki1 * D20_complexkj1 * D20_complexkk0);
-			  
-			  WIm = ( +D20_complexki0 * D20_complexkj0 * D20_complexkk1
-				  +D20_complexki0 * D20_complexkj1 * D20_complexkk0
-				  +D20_complexki1 * D20_complexkj0 * D20_complexkk0
-				  -D20_complexki1 * D20_complexkj1 * D20_complexkk1);
-			  
-			  WMag2 = (WRe*WRe) + (WIm*WIm);
-			  
-			  denConCor[0] = (denConK[longi][0]*WRe + denConK[longi][1]*WIm)/WMag2;
-			  denConCor[1] = (denConK[longi][1]*WRe - denConK[longi][0]*WIm)/WMag2;
-			  
-			}
-		      else
-			{ // NGP, CIC, TSC
-			  
-			  denConCor[0] = denConK[longi][0]/( W_k_Re(kpos[i]) * W_k_Re(kpos[j]) * W_k_Re(kpos[j]) );
-			  denConCor[1] = denConK[longi][1]/( W_k_Re(kpos[i]) * W_k_Re(kpos[j]) * W_k_Re(kpos[j]) );
-			  
-			}
-
-		      complex[longi][0] = denConCor[0];
-		      complex[longi][1] = denConCor[1];
 		      
-		      //complex[longi][0] = denConK[longi][0];
-		      //complex[longi][1] = denConK[longi][1];
+		      complex[longi][0] = denConK[longi][0];
+		      complex[longi][1] = denConK[longi][1];
 		      
 		      unity[longi][0]   = 1.0;
 		      unity[longi][1]   = 0.0;
@@ -590,13 +470,6 @@ int main(int argc, char *argv[])
       fftw_execute(realPlan);
       fftw_execute(NtriPlan);
 
-      // Realizando copia del resultado...
-      for(longi=0; longi<GV.NGRID3; longi++)
-	{
-	  real3[longi] = complex[longi][0];
-	  I3[longi]    = unity[longi][0];
-	}
-
       // Stimating power spectrum in k3
       GV.Pk3 /= (1.0*GV.Nk3);
       GV.Pk3 *= (GV.SIM_VOL / (1.0 * GV.NGRID3));
@@ -605,40 +478,35 @@ int main(int argc, char *argv[])
       GV.Pk3_Error = (GV.Pk3*(GV.DELTA_K/GV.K3))/sqrt(2.0*M_PI);
       
       /* Suming values of Bk and Ntri  */
-      Bklongdouble = 0.0;
-      Ntrilongdouble = 0.0;
-      //GV.Bk   = 0.0;
-      //GV.Ntri = 0.0;
+      GV.Bk   = 0.0;
+      GV.Ntri = 0.0;
       for(longi=0; longi<GV.NGRID3; longi++)
 	{
-	  Bklongdouble  +=(real1[longi]*real2[longi]*real3[longi])/(1.0*GV.NGRID3);
-	  Ntrilongdouble+=(I1[longi]   *I2[longi]   *I3[longi])   /(1.0*GV.NGRID3);
-	  //GV.Bk   += (real1[longi] * real2[longi] * real3[longi])/(1.0*GV.NGRID3);
-	  //GV.Ntri += (I1[longi]    * I2[longi]    * I3[longi])   /(1.0*GV.NGRID3);
+	  GV.Bk   += (real1[longi] * real2[longi] * real3[longi]);
+	  GV.Ntri += (I1[longi]    * I2[longi]    * I3[longi]);
 	}
-      //GV.Bk *= (1.0/GV.NGRID3);
-      //GV.Ntri *= (1.0/GV.NGRID3);
-      //GV.Ntri  = 8.0*M_PI*M_PI*GV.K1*GV.K2*GV.K3;
-      //GV.Ntri *= (GV.DELTA_K/(GV.KF*GV.KF));
-      //GV.Ntri *= (GV.DELTA_K/(GV.KF*GV.KF));
-      //GV.Ntri *= (GV.DELTA_K/(GV.KF*GV.KF));
-      //GV.Bk *= (       1.0/GV.Ntri);
+      GV.Bk *= (1.0/GV.NGRID3);
 
-      GV.Bk   = (double)(Bklongdouble/Ntrilongdouble);
-      GV.Ntri = (double)Ntrilongdouble;
+      //GV.Ntri *= (1.0/GV.NGRID3);
+      GV.Ntri  = 8.0*M_PI*M_PI*GV.K1*GV.K2*GV.K3;
+      GV.Ntri *= (GV.DELTA_K/(GV.KF*GV.KF));
+      GV.Ntri *= (GV.DELTA_K/(GV.KF*GV.KF));
+      GV.Ntri *= (GV.DELTA_K/(GV.KF*GV.KF));
+
+      if(GV.Bk<0)
+	{
+	  GV.K3 += (GV.DELTA_K);
+	  continue;
+	}
+
+      printf("B=%lf\n",(double)GV.Bk);
+      printf("Ntri=%lf\n",(double)GV.Ntri);
       
       GV.Bk *= (GV.SIM_VOL/GV.NGRID3);
       GV.Bk *= (GV.SIM_VOL/GV.NGRID3);
       GV.Bk *= (       1.0/GV.NGRID3);
+      GV.Bk *= (       1.0/GV.Ntri);
       
-
-      if(GV.Bk<0 || GV.Ntri<1.0)
-	{
-	  printf("skipped!");
-	  GV.K3 += (step*GV.DELTA_K);
-	  continue;
-	}
-
       // Stimating shot noise for bispectrum
       GV.Bk_shotnoise = (GV.Pk1+GV.Pk2+GV.Pk3)*GV.SHOT_NOISE + POW2(GV.SHOT_NOISE);
       
@@ -647,7 +515,7 @@ int main(int argc, char *argv[])
       GV.Bk_Error  = sqrt(M_PI/(GV.K1*GV.K2*GV.K3*POW3(GV.S_KF)));
       GV.Bk_Error *= sqrt(GV.Pk1*GV.Pk2*GV.Pk3);
       
-      GV.Qk = (GV.Bk) / (GV.Pk1*GV.Pk2+GV.Pk2*GV.Pk3+GV.Pk1*GV.Pk3);
+      GV.Qk = ((double)GV.Bk) / (GV.Pk1*GV.Pk2+GV.Pk2*GV.Pk3+GV.Pk1*GV.Pk3);
 
       GV.Qk_Error  = GV.Bk_Error;
       GV.Qk_Error -= GV.Qk*( (GV.Pk2+GV.Pk3)*GV.Pk1_Error +
@@ -656,11 +524,16 @@ int main(int argc, char *argv[])
       GV.Qk_Error /= ( GV.Pk1*GV.Pk2 + GV.Pk2*GV.Pk3 + GV.Pk3*GV.Pk1 );
       
       fprintf(fout,"%20lf %20lf %20lf %20e %20e %20e %20e %20e %20e %20e %20e %20e %20e\n",
-	      GV.K1, GV.K2, GV.K3, GV.Pk1, GV.Pk2, GV.Pk3, GV.Bk, GV.Qk,
+	      GV.K1, GV.K2, GV.K3, GV.Pk1, GV.Pk2, GV.Pk3, (double)GV.Bk, GV.Qk,
+	      GV.Pk1_Error, GV.Pk2_Error, GV.Pk3_Error,
+	      GV.Bk_Error, GV.Qk_Error);
+
+      fprintf(stdout,"%20lf %20lf %20lf %20e %20e %20e %20e %20e %20e %20e %20e %20e %20e\n",
+	      GV.K1, GV.K2, GV.K3, GV.Pk1, GV.Pk2, GV.Pk3, (double)GV.Bk, GV.Qk,
 	      GV.Pk1_Error, GV.Pk2_Error, GV.Pk3_Error,
 	      GV.Bk_Error, GV.Qk_Error);
       
-      GV.K3 += (step*GV.DELTA_K);
+      GV.K3 += (GV.DELTA_K);
       //GV.K3 += (0.5 * GV.DELTA_K);
     
     }// while
@@ -670,7 +543,7 @@ int main(int argc, char *argv[])
   //////////////////////
   //* FREEING MEMORY *//
   //////////////////////
-  printf("\nMemory free\n");
+  printf("Memory free\n");
   if( strcmp(GV.SCHEME, "D20") == 0 )
     {
       gsl_spline_free( splineRe );
@@ -697,8 +570,6 @@ int main(int argc, char *argv[])
   free(I3);
   fftw_destroy_plan(realPlan);
   fftw_destroy_plan(NtriPlan);
-
-  if(W_k_Im==NULL || W_k_Re==NULL){}		 
    
   return 0;
 }

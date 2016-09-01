@@ -10,8 +10,8 @@
 #define COMPLEXMAG(A,i) ( (A[i][0] * A[i][0]) + (A[i][1] * A[i][1]) )
 #define VECTORMAG(x,y,z) sqrt( ((x)*(x)) + ((y)*(y)) + ((z)*(z)) )
 #define POW2(x) ((x)*(x))
-#define POW3(x) ((x)*(x)*(X))
-#define POW4(x) ((x)*(x)*(X)*(x))
+#define POW3(x) ((x)*(x)*(x))
+#define POW4(x) ((x)*(x)*(x)*(x))
 
 /* Global variales */
 struct globalVariables{
@@ -74,17 +74,5 @@ struct globalVariables{
   int symmetry;        /*Symmetric factor according to the configuration 
 			  if equilateral symmetry is 6 and isosceles and
 			  general triangles are 2 and 1 respectively */
-
-  /*
-    
-    double sumDelta2_k2; // Sum delta2 in the k1 range
-    long int Nk2;        // Number of elements in array q1
-    double Pk2;          // Power spectrum at k1
-    double Pk2_Error;    // Power spectrum error at k1  
-    double sumDelta2_k3; // Sum delta2 in the k1 range
-    long int Nk3;        // Number of elements in array q1
-    double Pk3;          // Power spectrum at k1
-    double Pk3_Error;    // Power spectrum error at k1
-  */
 
 };

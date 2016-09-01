@@ -611,8 +611,8 @@ int main(int argc, char *argv[])
       //GV.Ntri = 0.0;
       for(longi=0; longi<GV.NGRID3; longi++)
 	{
-	  Bklongdouble  +=(real1[longi]*real2[longi]*real3[longi])/(1.0*GV.NGRID3);
-	  Ntrilongdouble+=(I1[longi]   *I2[longi]   *I3[longi])   /(1.0*GV.NGRID3);
+	  Bklongdouble  +=(real1[longi]*real2[longi]*real3[longi]);
+	  Ntrilongdouble+=(I1[longi]   *I2[longi]   *I3[longi])   ;
 	  //GV.Bk   += (real1[longi] * real2[longi] * real3[longi])/(1.0*GV.NGRID3);
 	  //GV.Ntri += (I1[longi]    * I2[longi]    * I3[longi])   /(1.0*GV.NGRID3);
 	}
@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
       //GV.Bk *= (       1.0/GV.Ntri);
 
       GV.Bk   = (double)(Bklongdouble/Ntrilongdouble);
-      GV.Ntri = (double)Ntrilongdouble;
+      GV.Ntri = (double)(Ntrilongdouble/(1.0*GV.NGRID3));
       
       GV.Bk *= (GV.SIM_VOL/GV.NGRID3);
       GV.Bk *= (GV.SIM_VOL/GV.NGRID3);

@@ -479,17 +479,17 @@ int main(int argc, char *argv[])
   /* Writing header */
   fprintf(fout,"# NGRID          = %d\n",  GV.NGRID);
   fprintf(fout,"# GADGET VERSION = %d\n",  GV.GADGET_VERSION);
-  fprintf(fout,"# L              = %lf\n", GV.L);
-  fprintf(fout,"# SIM VOL        = %lf\n", GV.SIM_VOL);
+  fprintf(fout,"# L              = %g\n",  GV.L);
+  fprintf(fout,"# SIM VOL        = %g\n",  GV.SIM_VOL);
   fprintf(fout,"# NP TOT         = %ld\n", GV.NP_TOT);
   fprintf(fout,"# TOTAL MASS     = %lf\n", GV.TOTAL_MASS);
-  fprintf(fout,"# RHO MEAN       = %lf\n", GV.RHO_MEAN);
-  fprintf(fout,"# VOL_CELL       = %lf\n", GV.VOL_CELL);
-  fprintf(fout,"# H              = %lf\n", GV.H);
-  fprintf(fout,"# DELTA k        = %lf\n", GV.DELTA_K);
-  fprintf(fout,"# kF             = %lf\n", GV.KF);
+  fprintf(fout,"# RHO MEAN       = %g\n",  GV.RHO_MEAN);
+  fprintf(fout,"# VOL_CELL       = %g\n",  GV.VOL_CELL);
+  fprintf(fout,"# H              = %g\n",  GV.H);
+  fprintf(fout,"# DELTA k        = %g\n",  GV.DELTA_K);
+  fprintf(fout,"# kF             = %g\n",  GV.KF);
   fprintf(fout,"# kN             = %lf\n", GV.KN);
-  fprintf(fout,"# Shot Noise     = %lf\n", GV.SHOT_NOISE);
+  fprintf(fout,"# Shot Noise     = %g\n",  GV.SHOT_NOISE);
   fprintf(fout,"# SCHEME         = %s\n",  GV.SCHEME);
   fprintf(fout,"# OMEGA_M0       = %lf\n", GV.OMEGA_M0);
   fprintf(fout,"# OMEGA_L0       = %lf\n", GV.OMEGA_L0);

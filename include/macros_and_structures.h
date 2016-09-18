@@ -6,6 +6,7 @@
 #define X 0
 #define Y 1
 #define Z 2
+#define TOL 1E-10
 #define INDEX(i,j,k) (k)+GV.NGRID*((j)+GV.NGRID*(i)) // Index for the C-Order
 #define COMPLEXMAG(A,i) ( (A[i][0] * A[i][0]) + (A[i][1] * A[i][1]) )
 #define VECTORMAG(x,y,z) sqrt( ((x)*(x)) + ((y)*(y)) + ((z)*(z)) )

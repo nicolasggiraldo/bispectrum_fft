@@ -225,8 +225,8 @@ int main(int argc, char *argv[])
       if(err){}
 
       // D20
-      W_k_Re = W_D20_Re;
-      W_k_Im = W_D20_Im;
+      W_k_Re = zero;
+      W_k_Im = zero;
       W2_k = Sum_W2_D20;
     }
   
@@ -274,15 +274,10 @@ int main(int argc, char *argv[])
 		  
 		  if( strcmp(GV.SCHEME, "D20") == 0 ) // D20
 		    { 
-		      
-		      D20_complexki0 = W_k_Re(kpos[i]);
-		      D20_complexkj0 = W_k_Re(kpos[j]);
-		      D20_complexkk0 = W_k_Re(kpos[k]);
-		      
-		      D20_complexki1 = W_k_Im(kpos[i]);
-		      D20_complexkj1 = W_k_Im(kpos[j]);
-		      D20_complexkk1 = W_k_Im(kpos[k]);
-		      
+		      W_D20(kpos[i], &D20_complexki0, &D20_complexki1);
+		      W_D20(kpos[j], &D20_complexkj0, &D20_complexkj1);
+		      W_D20(kpos[k], &D20_complexkk0, &D20_complexkk1);
+
 		      WRe = ( +D20_complexki0 * D20_complexkj0 * D20_complexkk0
 			      -D20_complexki0 * D20_complexkj1 * D20_complexkk1
 			      -D20_complexki1 * D20_complexkj0 * D20_complexkk1
@@ -377,14 +372,9 @@ int main(int argc, char *argv[])
 
 		  if( strcmp(GV.SCHEME, "D20") == 0 ) // D20
 		    { 
-		      
-		      D20_complexki0 = W_k_Re(kpos[i]);
-		      D20_complexkj0 = W_k_Re(kpos[j]);
-		      D20_complexkk0 = W_k_Re(kpos[k]);
-		      
-		      D20_complexki1 = W_k_Im(kpos[i]);
-		      D20_complexkj1 = W_k_Im(kpos[j]);
-		      D20_complexkk1 = W_k_Im(kpos[k]);
+		      W_D20(kpos[i], &D20_complexki0, &D20_complexki1);
+		      W_D20(kpos[j], &D20_complexkj0, &D20_complexkj1);
+		      W_D20(kpos[k], &D20_complexkk0, &D20_complexkk1);
 		      
 		      WRe = ( +D20_complexki0 * D20_complexkj0 * D20_complexkk0
 			      -D20_complexki0 * D20_complexkj1 * D20_complexkk1
@@ -525,14 +515,9 @@ int main(int argc, char *argv[])
 
 		      if( strcmp(GV.SCHEME, "D20") == 0 ) // D20
 			{ 
-			  
-			  D20_complexki0 = W_k_Re(kpos[i]);
-			  D20_complexkj0 = W_k_Re(kpos[j]);
-			  D20_complexkk0 = W_k_Re(kpos[k]);
-			  
-			  D20_complexki1 = W_k_Im(kpos[i]);
-			  D20_complexkj1 = W_k_Im(kpos[j]);
-			  D20_complexkk1 = W_k_Im(kpos[k]);
+			  W_D20(kpos[i], &D20_complexki0, &D20_complexki1);
+			  W_D20(kpos[j], &D20_complexkj0, &D20_complexkj1);
+			  W_D20(kpos[k], &D20_complexkk0, &D20_complexkk1);
 			  
 			  WRe = ( +D20_complexki0 * D20_complexkj0 * D20_complexkk0
 				  -D20_complexki0 * D20_complexkj1 * D20_complexkk1

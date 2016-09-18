@@ -6,6 +6,8 @@ double W_CIC(double k);
 double W_TSC(double k);
 double W_D20_Re(double k);
 double W_D20_Im(double k);
+void Hfun(double w, double *real, double *imag);
+void W_D20(double k, double *WRe, double *WIm);
 double zero(double k);
 double Sum_W2_NGP(double k);
 double Sum_W2_CIC(double k);

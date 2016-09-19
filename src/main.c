@@ -496,6 +496,13 @@ int main(int argc, char *argv[])
   while(GV.K3 <= GV.KN)
     {
       printf("\nk3 = %12.6lf ", GV.K3);
+
+      if( fabs(GV.K1-GV.K2)-(1.5*GV.DELTA_K)<=GV.K3 &&  GV.K3<=(GV.K1+GV.K2)+(1.5*GV.DELTA_K) )
+	{
+	  printf("skipped!");
+	  GV.K3 += (step*GV.DELTA_K);
+	  continue;
+	}
       
       GV.Pk3 = 0.0;
       GV.Nk3 = 0;

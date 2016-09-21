@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
   else if( strcmp(GV.SCHEME, "D20") == 0 )
     {
       
-      len_array_D20 = 399;
+      len_array_D20 = 400;
       int err;
       
       k_D20     = (double *) calloc( len_array_D20, sizeof(double));
@@ -499,7 +499,7 @@ int main(int argc, char *argv[])
   
   fprintf(fout,"#%19s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s\n",
 	  "k1", "k2", "k3", "P(k1)", "P(k2)", "P(k3)", "B(k1,k2,k3)", "Q(k1,k2,k3)",
-	  "Error_P(k1)", "Error_P(k2)", "Error_P(k3)", "Error_B123", "Error_Q123");
+	  "Error_P(k1)", "Error_P(k2)", "Error_P(k3)", "Error_B123", "Error_Q123", "Ntri");
   
   /* Lineal binning */
   GV.K3 = GV.DELTA_K*0.5;
@@ -662,10 +662,10 @@ int main(int argc, char *argv[])
 			     (GV.Pk1+GV.Pk2)*GV.Pk3_Error);
       GV.Qk_Error /= ( GV.Pk1*GV.Pk2 + GV.Pk2*GV.Pk3 + GV.Pk3*GV.Pk1 );
       
-      fprintf(fout,"%20lf %20lf %20lf %20e %20e %20e %20e %20e %20e %20e %20e %20e %20e\n",
+      fprintf(fout,"%20lf %20lf %20lf %20e %20e %20e %20e %20e %20e %20e %20e %20e %20e %20e\n",
 	      GV.K1, GV.K2, GV.K3, GV.Pk1, GV.Pk2, GV.Pk3, GV.Bk, GV.Qk,
 	      GV.Pk1_Error, GV.Pk2_Error, GV.Pk3_Error,
-	      GV.Bk_Error, GV.Qk_Error);
+	      GV.Bk_Error, GV.Qk_Error, GV.Ntri);
       
       GV.K3 += (step*GV.DELTA_K);
       //GV.K3 += (0.5 * GV.DELTA_K);

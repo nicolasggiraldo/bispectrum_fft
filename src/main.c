@@ -497,7 +497,7 @@ int main(int argc, char *argv[])
   fprintf(fout,"# HUBBLEPARAM    = %lf\n", GV.HUBBLEPARAM);
   //fprintf(fout,"\n");
   
-  fprintf(fout,"#%19s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s\n",
+  fprintf(fout,"#%19s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s %20s\n",
 	  "k1", "k2", "k3", "P(k1)", "P(k2)", "P(k3)", "B(k1,k2,k3)", "Q(k1,k2,k3)",
 	  "Error_P(k1)", "Error_P(k2)", "Error_P(k3)", "Error_B123", "Error_Q123", "Ntri");
   

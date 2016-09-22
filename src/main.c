@@ -507,7 +507,7 @@ int main(int argc, char *argv[])
     {
       printf("\nk3 = %12.6lf ", GV.K3);
 
-      if( fabs(GV.K1-GV.K2)-(1.5*GV.DELTA_K)<=GV.K3 &&  GV.K3<=(GV.K1+GV.K2)+(1.5*GV.DELTA_K) )
+      if( fabs(GV.K1-GV.K2)-(1.5*GV.DELTA_K)>GV.K3 ||  GV.K3>(GV.K1+GV.K2)+(1.5*GV.DELTA_K) )
 	{
 	  printf("skipped!");
 	  GV.K3 += (step*GV.DELTA_K);
